@@ -162,8 +162,10 @@ Cards fall back to a coloured monogram. To use real logos, create `data/logo_dom
 
 Running in a private beta at https://sponsr.codetrend.com with a daily feed from the upstream engine. Sponsorship coverage is the UK and the Netherlands. The upstream matching engine is not open source; this repository contains the application and the import contract.
 
+> **About this repository.** This is a public snapshot of a project I develop privately. It was published with credentials, account identifiers and private data removed, so its history starts at publication.
+
 ## Author
 
 Built by Efraim Hernandez · https://efraprojects.com
 
-Efraim is a solutions architect with 17+ years of enterprise experience, building applied AI systems.
+Efraim is a principal architect for applied AI with 17+ years of enterprise experience, building applied AI systems.
