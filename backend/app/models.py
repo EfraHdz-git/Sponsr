@@ -15,7 +15,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(80), unique=True)
     password_hash: Mapped[str] = mapped_column(String(200))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-    # Verified profile (imported from the upstream engine): header, roles and facts as JSON.
+    # Verified profile (imported from the upstream matching engine): header, roles and facts as JSON.
     header: Mapped[dict] = mapped_column(JSON, default=dict)
     roles: Mapped[list] = mapped_column(JSON, default=list)
     facts: Mapped[list] = mapped_column(JSON, default=list)
@@ -24,7 +24,7 @@ class User(Base):
 class Job(Base):
     __tablename__ = "jobs"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    source_id: Mapped[int] = mapped_column(Integer, unique=True)  # upstream engine job id
+    source_id: Mapped[int] = mapped_column(Integer, unique=True)  # upstream job id
     company: Mapped[str] = mapped_column(String(255))
     title: Mapped[str] = mapped_column(String(500))
     location: Mapped[str | None] = mapped_column(String(500))

@@ -14,13 +14,24 @@ const STATUS: Record<AppItem["status"], { label: string; cls: string }> = {
 export default function Applications({ toast, onChange }: { toast: (m: string) => void; onChange: () => void }) {
   const [items, setItems] = useState<AppItem[] | null>(null);
   const [viewing, setViewing] = useState<AppItem | null>(null);
-  const load = useCallback(() => api.applications().then(setItems).catch(() => setItems([])), []);
+  // Keep the previous array when nothing changed, so background checks don't re-render the list.
+  const load = useCallback(() => api.applications()
+    .then((next) => setItems((prev) => (prev && JSON.stringify(prev) === JSON.stringify(next) ? prev : next)))
+    .catch(() => setItems((prev) => prev ?? [])), []);
   useEffect(() => { load(); }, [load]);
-  useEffect(() => {  // live while any CV is being written
-    if (!items?.some((i) => i.status === "WRITING")) return;
-    const t = setTimeout(load, 3000);
-    return () => clearTimeout(t);
-  }, [items, load]);
+  const writing = !!items?.some((i) => i.status === "WRITING");
+  useEffect(() => {
+    // Live: every 3s while a CV is being written, otherwise every 8s while the tab is visible, so CVs started
+    // elsewhere (Claude / ChatGPT through the MCP server, another device) show up without a refresh.
+    const t = setInterval(() => { if (document.visibilityState === "visible") load(); }, writing ? 3000 : 8000);
+    return () => clearInterval(t);
+  }, [writing, load]);
+  useEffect(() => {  // catch up immediately when the user comes back to this tab
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => { document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("focus", onVisible); };
+  }, [load]);
 
   const act = async (fn: () => Promise<unknown>, msg: string) => {
     try { await fn(); toast(msg); load(); onChange(); } catch (e) { toast(e instanceof Error ? e.message : "Failed"); }
@@ -50,7 +61,11 @@ export default function Applications({ toast, onChange }: { toast: (m: string) =
             <button className="cv-preview" onClick={() => setViewing(a)}>
               <div className="cv-thumb"><i /><i /><i /><i /><i /></div>
               <div className="cv-text"><b>{a.headline}</b><p className="clamp">{a.summary}</p>
-                <span className="checks"><IconShield className="icon" />{a.bullets} points, each traced to your facts</span></div>
+                <span className="checks"><IconShield className="icon" />{a.bullets} points, each traced to your facts</span>
+                {a.usage && <span className="usage-line">
+                  {a.usage.cached_pct > 0
+                    ? `${a.usage.cached_pct}% of the prompt from cache · $${a.usage.cost_usd.toFixed(3)} (saved $${a.usage.saved_usd.toFixed(3)})`
+                    : `Profile cached for the next CVs · $${a.usage.cost_usd.toFixed(3)}`}</span>}</div>
             </button>
           )}
           <footer className="row-actions">

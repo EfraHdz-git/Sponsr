@@ -23,6 +23,7 @@
 .clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .checks { display: flex; align-items: center; gap: 6px; color: #047857; font-weight: 700; font-size: 12.5px; }
 .checks .icon { width: 15px; height: 15px; }
+.usage-line { display: block; margin-top: 4px; color: var(--muted, #64748b); font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .row-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; } .grow-space { flex: 1; }
 .empty { padding: 44px 28px; display: grid; justify-items: center; gap: 10px; text-align: center; border-radius: 24px; }
 .empty-art { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, var(--brand), var(--brand-2)); box-shadow: var(--shadow-lg); }

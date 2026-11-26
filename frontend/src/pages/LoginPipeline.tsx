@@ -1,9 +1,9 @@
-// Recruiter-facing explanation of the pipeline behind Sponsr (upstream matching engine + Sponsr), shown under the sign-in form.
-// Every claim is verified against the code and production data: keep it that way when editing.
+// Recruiter-facing explanation of the pipeline behind Sponsr (matching engine + Sponsr), shown under the sign-in form.
+// Every claim is verified against the code and production data (2026-11-26): keep it that way when editing.
 const STATS = [
   { value: "240+", label: "employers tracked" },
   { value: "26k", label: "roles scanned" },
-  { value: "2", label: "official registers" },
+  { value: "7", label: "MCP tools" },
   { value: "278", label: "eval cases" },
 ];
 
@@ -35,12 +35,17 @@ const STEPS = [
   },
   {
     title: "Swipe for a tailored CV",
-    text: "Swipe right and Claude Sonnet writes a CV for that role from verified facts only. Every line must cite fact ids; code removes any line with an unsupported claim or number, then renders an ATS-friendly PDF.",
-    tags: ["Claude Sonnet", "Tool use", "ReportLab"],
+    text: "Swipe right and Claude Sonnet writes a CV for that role from verified facts only. Every line must cite fact ids; code removes any line with an unsupported claim or number, then renders an ATS-friendly PDF. The prompt is ordered for caching: tools, instructions and the candidate's facts come first and are cached, the job posting goes last, so the second CV in a session reads about 77% of its prompt from cache ($0.033 instead of $0.050). Token use and cost are shown on every application.",
+    tags: ["Claude Sonnet", "Tool use", "Prompt caching", "ReportLab"],
+  },
+  {
+    title: "Use it from Claude or ChatGPT",
+    text: "A remote MCP server exposes 7 tools: find sponsored jobs, job details, create a tailored CV, show a CV, open the job post, list my CVs and my profile. It works as a custom connector in claude.ai and ChatGPT, signing in through OAuth with a Sponsr login page. A CV comes back in the chat with a PDF link, and tool descriptions are written so the assistant uses Sponsr instead of writing the CV itself.",
+    tags: ["MCP", "OAuth 2.1", "Claude", "ChatGPT"],
   },
   {
     title: "The app",
-    text: "A React swipe deck with Framer Motion, in-app PDF preview, and a FastAPI backend with JWT cookie sessions.",
+    text: "A React swipe deck with Framer Motion, in-app PDF preview, and a FastAPI backend with JWT cookie sessions. The Applications page refreshes itself, so CVs started from Claude or ChatGPT appear on their own.",
     tags: ["React", "Framer Motion", "pdf.js", "JWT"],
   },
 ];

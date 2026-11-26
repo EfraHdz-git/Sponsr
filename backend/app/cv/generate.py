@@ -13,6 +13,7 @@ from anthropic import AnthropicBedrock
 from app.config import get_settings
 
 PRICE_PER_MTOK = (2.0, 10.0)  # Sonnet 5.5 input / output, USD (Anthropic list price; Bedrock is close)
+CACHE_WRITE_FACTOR, CACHE_READ_FACTOR = 1.25, 0.05  # 5-minute cache entries; reads on Sonnet 5.5
 MAX_BULLETS = 18
 _NUM = re.compile(r"\d+(?:[.,]\d+)*")
 
@@ -107,20 +108,38 @@ def guard(cv: dict, profile: dict) -> tuple[dict, list[str]]:
     return cv, notes
 
 
+def usage_report(u) -> dict:
+    """Cost of one call, priced with prompt caching (5-minute entries), and what the cache saved."""
+    fresh, read = u.input_tokens or 0, getattr(u, "cache_read_input_tokens", 0) or 0
+    written, out = getattr(u, "cache_creation_input_tokens", 0) or 0, u.output_tokens or 0
+    inp, outp = PRICE_PER_MTOK
+    cost = (fresh * inp + read * inp * CACHE_READ_FACTOR + written * inp * CACHE_WRITE_FACTOR + out * outp) / 1e6
+    uncached = ((fresh + read + written) * inp + out * outp) / 1e6
+    total_in = fresh + read + written
+    return {"input_tokens": total_in, "cached_tokens": read, "cache_written_tokens": written, "output_tokens": out,
+            "cached_pct": round(100 * read / total_in) if total_in else 0,
+            "cost_usd": round(cost, 4), "saved_usd": round(uncached - cost, 4)}
+
+
 def write_cv(job, profile: dict) -> tuple[dict, list[str], float]:
+    """Prompt order is stable first, job last: tools + instructions + the candidate's facts are identical for every
+    job, so they are cached (5 minutes) and a burst of CVs (a demo, a chat session) reads them from cache."""
     s = get_settings()
     client = AnthropicBedrock(aws_region=s.aws_region)
     msg = client.messages.create(
-        model=s.cv_model, max_tokens=6000, system=SYSTEM, tools=[CV_TOOL],
-        tool_choice={"type": "auto"},
-        messages=[{"role": "user", "content": f"{_job_block(job)}\n\n{_facts_block(profile)}"}])
+        model=s.cv_model, max_tokens=6000, tools=[CV_TOOL], tool_choice={"type": "auto"},
+        system=[{"type": "text", "text": SYSTEM},
+                {"type": "text", "text": "CANDIDATE (verified, the only source):\n" + _facts_block(profile),
+                 "cache_control": {"type": "ephemeral"}}],
+        messages=[{"role": "user", "content": _job_block(job)}])
     use = next((b for b in msg.content if b.type == "tool_use"), None)
     if use is None:
         raise RuntimeError("the model did not return a CV")
-    cost = (msg.usage.input_tokens * PRICE_PER_MTOK[0] + msg.usage.output_tokens * PRICE_PER_MTOK[1]) / 1e6
+    usage = usage_report(msg.usage)
     cv, notes = guard(json.loads(json.dumps(use.input)), profile)
     cv["relocating_to"] = {"GB": "the UK", "NL": "the Netherlands"}.get(job.country or "")
-    return cv, notes, round(cost, 4)
+    cv["usage"] = usage
+    return cv, notes, usage["cost_usd"]
 
 
 def extras(profile: dict) -> dict[str, list[str]]:

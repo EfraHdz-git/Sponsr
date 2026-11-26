@@ -14,7 +14,9 @@ Sponsr turns that bundle into a swipe deck:
 - **Right swipe**: Claude Sonnet on Amazon Bedrock writes a CV for that role from the candidate's verified facts only. Code checks every line before an ATS-friendly PDF is rendered.
 - **Applications**: generated CVs with status (writing, ready, failed, applied), an in-app PDF preview, download, retry, and mark-as-applied.
 - **Profile**: the verified profile the CVs are built from (roles, facts, skills), with an optional photo.
-- **MCP server**: the same capabilities exposed as a remote MCP server (`/mcp`, streamable HTTP) with OAuth 2.1 sign-in, so Claude can find jobs, explain fit and request a tailored CV directly.
+- **MCP server**: the same capabilities exposed as a remote MCP server (`/mcp`, streamable HTTP) with 7 tools (find sponsored jobs, job details, create a tailored CV, show a CV, open the job post, my CVs, my profile). It works as a custom connector in claude.ai and ChatGPT through OAuth 2.1 with a Sponsr sign-in page; the CV comes back in the chat with a PDF link.
+- **Prompt caching**: the CV prompt puts the stable parts first (tool schema, instructions, the candidate's verified facts, marked for caching) and the job posting last, so a burst of CVs reads most of the prompt from cache. Measured: the second CV in a session was 77% cached and cost $0.033 instead of $0.050. Token use, cache hits and cost are stored with each application and shown in the app and in the MCP result.
+- **Live applications list**: the Applications page polls every 8 seconds (every 3 while a CV is being written) and on tab focus, so CVs requested from Claude or ChatGPT appear on their own.
 
 No model call happens on import. Claude is called only when a user asks for a CV.
 

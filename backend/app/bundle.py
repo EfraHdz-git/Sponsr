@@ -1,7 +1,7 @@
-"""Load a bundle exported by the upstream matching engine: the verified job set + the user's verified profile.
+"""Load a bundle exported from the upstream matching engine: the verified job set + the user's verified profile.
 
-Used by the CLI (import-bundle) and by the daily push from the engine (POST /api/admin/import).
-No Claude calls: everything in the bundle was already evaluated upstream.
+Used by the CLI (import-bundle) and by the daily push from the upstream matching engine (POST /api/admin/import).
+No Claude calls: everything in the bundle was already evaluated by the upstream matching engine.
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def load_logos(path: Path | None = None) -> dict:
 
 
 def apply_bundle(s: Session, bundle: dict, username: str, logos: dict) -> dict:
-    """The bundle becomes the active set (jobs no longer in it are retired; swipes are kept by upstream job id,
+    """The bundle becomes the active set (jobs no longer in it are retired; swipes are kept by upstream id,
     so a job you already swiped never comes back). An empty job list never wipes the deck."""
     user = s.scalar(select(User).where(User.username == username.lower()))
     if user is None:

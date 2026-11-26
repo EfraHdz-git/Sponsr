@@ -11,6 +11,7 @@ export type Me = { username: string; name: string; headline: string | null; loca
 export type AppItem = {
   id: number; status: "WRITING" | "READY" | "FAILED" | "APPLIED"; job: Card; created_at: string; ready_at: string | null;
   error: string | null; notes: string[]; headline: string | null; summary: string; bullets: number;
+  usage?: { input_tokens: number; cached_tokens: number; cached_pct: number; cost_usd: number; saved_usd: number } | null;
 };
 export type Fact = { id: number; role_id: number | null; category: string; text: string; skills: string[]; skill_level: string | null };
 export type Role = { id: number; employer: string; title: string; start: string | null; end: string | null; location: string | null;

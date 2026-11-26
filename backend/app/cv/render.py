@@ -1,4 +1,4 @@
-"""ATS-friendly PDF CV (one column, real text). Employer, title and dates come
+"""ATS-friendly PDF CV (one column, real text). Adapted from the upstream matching engine: employer, title and dates come
 from the verified roles, never from the model. Trims the least relevant bullet until it fits 2 pages."""
 from __future__ import annotations
 

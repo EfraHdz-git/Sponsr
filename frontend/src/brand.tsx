@@ -36,7 +36,7 @@ export function HeroArt() {
       <g transform="translate(280 300)">
         <clipPath id="globe-clip"><circle r="189" /></clipPath>
         <circle r="190" fill="url(#globe)" stroke="#ffffff" strokeOpacity=".35" />
-        {/* Stylised continents, Atlantic view: the Americas on the left (origin), Europe and Africa on the right (destination). */}
+        {/* Stylised continents, Atlantic view: the Americas on the left (origin: Mexico), Europe and Africa on the right (destination: UK). */}
         <g clipPath="url(#globe-clip)" fill="#fff" fillOpacity=".3" stroke="#fff" strokeOpacity=".45" strokeWidth="1.2" strokeLinejoin="round">
           <path d="M-188-98C-160-140-104-152-66-134c22 10 18 30 2 44-14 12-16 32-30 46-10 10-8 30-18 44-8 12-14 30-6 46l-6 6c-14-4-24-18-30-34-12-28-24-56-38-78-12-18-26-30-30-44z" />
           <path d="M-58-172c18-8 40-4 46 10 4 12-10 22-26 22-16 0-28-8-30-18 0-6 4-10 10-14z" />

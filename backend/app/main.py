@@ -27,6 +27,13 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/.well-known/oauth-protected-resource", include_in_schema=False)
+def protected_resource_root() -> dict:
+    """Same as /.well-known/oauth-protected-resource/mcp; some clients (ChatGPT) look at the root path first."""
+    return {"resource": "https://sponsr.codetrend.com/mcp", "authorization_servers": ["https://sponsr.codetrend.com/"],
+            "bearer_methods_supported": ["header"]}
+
+
 # Last, so the API routes win: /mcp plus the OAuth endpoints (/.well-known/*, /authorize, /token, /register,
 # /revoke) that claude.ai expects at the site root.
 app.mount("/", mcp.streamable_http_app())

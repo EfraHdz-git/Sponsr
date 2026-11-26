@@ -163,7 +163,8 @@ def _app_out(a: Application, j: Job) -> dict:
     return {"id": a.id, "status": a.status, "job": _card(j) | {"description": None}, "created_at": a.created_at,
             "ready_at": a.ready_at, "error": a.error, "notes": a.notes or [],
             "headline": (a.cv or {}).get("headline"), "summary": " ".join(x["text"] for x in (a.cv or {}).get("summary") or []),
-            "bullets": sum(len(b["bullets"]) for b in (a.cv or {}).get("experience") or [])}
+            "bullets": sum(len(b["bullets"]) for b in (a.cv or {}).get("experience") or []),
+            "usage": (a.cv or {}).get("usage")}
 
 
 @router.post("/reset")
@@ -230,6 +231,28 @@ def cv_pdf(app_id: int, download: bool = False, user: User = Depends(current_use
     disposition = "attachment" if download else "inline"
     return Response(app.pdf, media_type="application/pdf",
                     headers={"Content-Disposition": f'{disposition}; filename="{name.encode("ascii", "ignore").decode()}"'})
+
+
+def cv_signature(app_id: int) -> str:
+    """Unguessable per-CV signature, so a CV PDF can be opened from a link in Claude without signing in."""
+    key = get_settings().jwt_secret.get_secret_value().encode()
+    return hmac.new(key, f"cv-share:{app_id}".encode(), "sha256").hexdigest()[:32]
+
+
+def cv_share_url(app_id: int) -> str:
+    return f"https://sponsr.codetrend.com/api/cv/{app_id}/{cv_signature(app_id)}.pdf"
+
+
+@router.get("/cv/{app_id}/{sig}.pdf")
+def shared_cv_pdf(app_id: int, sig: str, session: Session = Depends(get_session)):
+    app = session.get(Application, app_id)
+    if app is None or not app.pdf or not hmac.compare_digest(sig, cv_signature(app_id)):
+        raise HTTPException(404, "not found")
+    user, job = session.get(User, app.user_id), session.get(Job, app.job_id)
+    name = re.sub(r'[\\/:*?"<>|]+', " ", f"{(user.header or {}).get('full_name') or 'CV'} - {job.company} - {job.title}.pdf")
+    return Response(app.pdf, media_type="application/pdf", headers={
+        "Content-Disposition": f'inline; filename="{name.encode("ascii", "ignore").decode()}"',
+        "X-Robots-Tag": "noindex", "Cache-Control": "private, no-store"})
 
 
 @router.get("/profile")

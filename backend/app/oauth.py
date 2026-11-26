@@ -27,7 +27,7 @@ from app.config import get_settings
 from app.db import Base, SessionLocal
 from app.models import User
 
-APP_URL = get_settings().app_url.rstrip("/")
+APP_URL = "https://sponsr.codetrend.com"
 PENDING_TTL, CODE_TTL = 600, 300
 ACCESS_TTL, REFRESH_TTL = 24 * 3600, 30 * 86400
 
