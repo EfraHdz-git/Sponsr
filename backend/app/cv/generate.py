@@ -1,0 +1,128 @@
+"""Tailored CV on a right swipe: Claude Sonnet on Bedrock writes it from VERIFIED facts only; code checks it.
+
+Every line cites fact ids; a line citing no real fact, or stating a number its facts do not contain,
+is removed (reported in notes). Employer, title and dates always come from the verified roles.
+"""
+from __future__ import annotations
+
+import json
+import re
+
+from anthropic import AnthropicBedrock
+
+from app.config import get_settings
+
+PRICE_PER_MTOK = (2.0, 10.0)  # Sonnet 5.5 input / output, USD (Anthropic list price; Bedrock is close)
+MAX_BULLETS = 18
+_NUM = re.compile(r"\d+(?:[.,]\d+)*")
+
+CV_TOOL = {
+    "name": "tailored_cv",
+    "description": "The tailored CV, every line citing the verified facts it is based on.",
+    "input_schema": {
+        "type": "object", "required": ["headline", "summary", "skills", "experience"],
+        "properties": {
+            "headline": {"type": "string", "description": "One positioning line under the name, true to the roles."},
+            "summary": {"type": "array", "items": {"$ref": "#/$defs/line"}, "description": "2 to 3 sentences."},
+            "skills": {"type": "array", "items": {"type": "object", "required": ["label", "items"], "properties": {
+                "label": {"type": "string"}, "items": {"type": "array", "items": {"type": "string"}}}}},
+            "experience": {"type": "array", "items": {"type": "object", "required": ["role_id", "bullets"], "properties": {
+                "role_id": {"type": "integer"}, "bullets": {"type": "array", "items": {"$ref": "#/$defs/line"}}}}},
+        },
+        "$defs": {"line": {"type": "object", "required": ["text", "fact_ids"], "properties": {
+            "text": {"type": "string"}, "fact_ids": {"type": "array", "items": {"type": "integer"}}}}},
+    },
+}
+
+SYSTEM = """You write a tailored, ATS-friendly CV for ONE job, using ONLY the candidate's verified facts.
+Rules:
+- Every summary sentence and bullet cites the fact ids it is based on (fact_ids). Never state anything,
+  including numbers, technologies, employers, titles or outcomes, that its cited facts do not support.
+- Lead with what this job needs most. Order bullets by relevance; every role gets at least one bullet,
+  older or less relevant roles exactly one. At most 18 bullets in total.
+- Rephrase for the employer's problem, not just its keywords. Plain, confident, specific; no buzzwords,
+  no em dashes, no first person.
+- Skills: only skills named in the facts, grouped for this job (3 to 5 groups).
+- Include every role (role_id from the list), most recent first.
+Call the tailored_cv tool with the result."""
+
+
+def _facts_block(profile: dict) -> str:
+    roles = {r["id"]: r for r in profile["roles"]}
+    lines = ["ROLES:"] + [f"- role_id {r['id']}: {r['title']}, {r['employer']} ({r.get('start') or '?'} to {r.get('end') or 'present'})"
+                          for r in profile["roles"]]
+    lines.append("\nFACTS:")
+    for f in profile["facts"]:
+        if f["category"] in ("EDUCATION", "EDUCATION_OPTIONAL", "CERTIFICATION", "LANGUAGE", "MOTIVATION"):
+            continue
+        where = f"role {f['role_id']}" if f.get("role_id") in roles else "general"
+        lines.append(f"[{f['id']}] ({where}, {f['category'].lower()}) {f['text']}")
+    return "\n".join(lines)
+
+
+def _job_block(job) -> str:
+    return (f"JOB: {job.title} at {job.company} ({job.location or job.country})\n\n"
+            f"POSTING:\n{(job.description or '')[:14000]}")
+
+
+def guard(cv: dict, profile: dict) -> tuple[dict, list[str]]:
+    facts = {f["id"]: f for f in profile["facts"]}
+    role_ids = {r["id"] for r in profile["roles"]}
+    known_skills = {s.lower() for f in profile["facts"] for s in f.get("skills") or []}
+    notes: list[str] = []
+
+    def keep(line: dict, where: str) -> bool:
+        cited = [facts[i] for i in line.get("fact_ids") or [] if i in facts]
+        if not cited:
+            notes.append(f"removed {where} (cites no verified fact): {line.get('text', '')[:80]}")
+            return False
+        source_numbers = {n.replace(",", "") for f in cited for n in _NUM.findall(f["text"])}
+        if {n.replace(",", "") for n in _NUM.findall(line["text"])} - source_numbers:
+            notes.append(f"removed {where} (number not in its facts): {line['text'][:80]}")
+            return False
+        line["text"] = re.sub(r"\s*—\s*", ", ", line["text"])
+        return True
+
+    cv["summary"] = [s for s in cv.get("summary") or [] if keep(s, "summary sentence")]
+    blocks = []
+    for b in cv.get("experience") or []:
+        if b.get("role_id") in role_ids:
+            b["bullets"] = [x for x in b.get("bullets") or [] if keep(x, "bullet")]
+            blocks.append(b)
+    cv["experience"] = blocks
+    while sum(len(b["bullets"]) for b in blocks) > MAX_BULLETS:
+        widest = max(blocks, key=lambda b: len(b["bullets"]))
+        notes.append(f"over {MAX_BULLETS} bullets: dropped '{widest['bullets'].pop()['text'][:60]}'")
+    corpus = " ".join([f["text"] for f in facts.values()] + sorted(known_skills)).lower()
+    words = set(re.findall(r"[a-z0-9#+.]+", corpus))
+
+    def supported(skill: str) -> bool:  # every word of the skill appears in your facts ("MCP servers" ~ "MCP server")
+        toks = [t.strip(".") for t in re.findall(r"[a-z0-9#+.]+", skill.lower()) if len(t.strip(".")) > 1]
+        return bool(toks) and all(t in words or t.rstrip("s") in words or f"{t}s" in words for t in toks)
+    for g in cv.get("skills") or []:
+        dropped = [s for s in g["items"] if not supported(s)]
+        g["items"] = [s for s in g["items"] if s not in dropped]
+        notes += [f"removed skill not in your facts: {s}" for s in dropped]
+    cv["skills"] = [g for g in cv.get("skills") or [] if g["items"]]
+    return cv, notes
+
+
+def write_cv(job, profile: dict) -> tuple[dict, list[str], float]:
+    s = get_settings()
+    client = AnthropicBedrock(aws_region=s.aws_region)
+    msg = client.messages.create(
+        model=s.cv_model, max_tokens=6000, system=SYSTEM, tools=[CV_TOOL],
+        tool_choice={"type": "auto"},
+        messages=[{"role": "user", "content": f"{_job_block(job)}\n\n{_facts_block(profile)}"}])
+    use = next((b for b in msg.content if b.type == "tool_use"), None)
+    if use is None:
+        raise RuntimeError("the model did not return a CV")
+    cost = (msg.usage.input_tokens * PRICE_PER_MTOK[0] + msg.usage.output_tokens * PRICE_PER_MTOK[1]) / 1e6
+    cv, notes = guard(json.loads(json.dumps(use.input)), profile)
+    cv["relocating_to"] = {"GB": "the UK", "NL": "the Netherlands"}.get(job.country or "")
+    return cv, notes, round(cost, 4)
+
+
+def extras(profile: dict) -> dict[str, list[str]]:
+    pick = lambda c: [f["text"] for f in profile["facts"] if f["category"] == c]  # noqa: E731
+    return {"education": pick("EDUCATION"), "certifications": pick("CERTIFICATION"), "languages": pick("LANGUAGE")}

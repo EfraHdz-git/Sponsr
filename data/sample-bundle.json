@@ -1,0 +1,244 @@
+{
+ "generated_at": "2026-11-01T06:00:00+00:00",
+ "jobs": [
+  {
+   "source_id": 1001,
+   "company": "Northwind Analytics",
+   "title": "Staff Platform Engineer",
+   "location": "London, UK",
+   "country": "GB",
+   "url": "https://jobs.example.com/northwind-analytics/1001",
+   "apply_url": "https://jobs.example.com/northwind-analytics/1001/apply",
+   "ats": "greenhouse",
+   "posted_at": "2026-11-01T09:00:00+00:00",
+   "salary": "£110k to £130k",
+   "description": "Northwind Analytics (a fictional company used for this sample) is hiring a Staff Platform Engineer to own our event pipeline on AWS.\n\nWe offer visa sponsorship for this role.",
+   "summary": "Strong platform fit: the role centres on event-driven AWS services the candidate has built and operated.",
+   "strengths": [
+    "Designed event-driven services on AWS at scale",
+    "Led a cloud cost reduction programme"
+   ],
+   "gaps": [
+    "No direct Kafka experience in the facts"
+   ],
+   "decision": "PRIORITY",
+   "rank": 91,
+   "strategic": 90,
+   "technical": 88,
+   "interview": 80,
+   "role_family": "PLATFORM",
+   "work_arrangement": null,
+   "licence": {
+    "status": "LICENSED",
+    "register": "UK Home Office",
+    "entry": "Northwind Analytics Ltd (Skilled Worker, A rating)",
+    "source_url": "https://example.com/sponsor-register.csv"
+   },
+   "sponsorship": {
+    "status": "CONFIRMED",
+    "quote": "We offer visa sponsorship for this role."
+   }
+  },
+  {
+   "source_id": 1002,
+   "company": "Contoso Health",
+   "title": "Senior Backend Engineer, AI",
+   "location": "Amsterdam, Netherlands",
+   "country": "NL",
+   "url": "https://jobs.example.com/contoso-health/1002",
+   "apply_url": "https://jobs.example.com/contoso-health/1002/apply",
+   "ats": "greenhouse",
+   "posted_at": "2026-11-01T09:00:00+00:00",
+   "salary": null,
+   "description": "Contoso Health (a fictional company used for this sample) builds clinical documentation tools with large language models.\n\nRelocation support and a highly skilled migrant visa are provided.",
+   "summary": "Good fit for applied AI backend work; healthcare domain is new.",
+   "strengths": [
+    "Shipped an LLM-backed feature to production",
+    "Python and FastAPI services"
+   ],
+   "gaps": [
+    "No healthcare domain experience"
+   ],
+   "decision": "REVIEW",
+   "rank": 82,
+   "strategic": 78,
+   "technical": 85,
+   "interview": 72,
+   "role_family": "APPLIED_AI",
+   "work_arrangement": null,
+   "licence": {
+    "status": "LICENSED",
+    "register": "IND (Dutch recognised sponsors)",
+    "entry": "Contoso Health B.V. (recognised sponsor, regular labour)",
+    "source_url": "https://example.com/sponsor-register.csv"
+   },
+   "sponsorship": {
+    "status": "CONFIRMED",
+    "quote": "Relocation support and a highly skilled migrant visa are provided."
+   }
+  },
+  {
+   "source_id": 1003,
+   "company": "Fabrikam Payments",
+   "title": "Solutions Architect",
+   "location": "Manchester, UK",
+   "country": "GB",
+   "url": "https://jobs.example.com/fabrikam-payments/1003",
+   "apply_url": "https://jobs.example.com/fabrikam-payments/1003/apply",
+   "ats": "greenhouse",
+   "posted_at": "2026-11-01T09:00:00+00:00",
+   "salary": "£90k to £105k",
+   "description": "Fabrikam Payments (a fictional company used for this sample) is looking for a Solutions Architect for merchant integrations.\n\nVisa sponsorship is available for candidates who need it.",
+   "summary": "Solid architecture match; payments experience would strengthen the case.",
+   "strengths": [
+    "Enterprise solution architecture across many integrations"
+   ],
+   "gaps": [
+    "Payments domain not shown in the facts",
+    "Customer-facing pre-sales not shown"
+   ],
+   "decision": "REVIEW",
+   "rank": 74,
+   "strategic": 70,
+   "technical": 76,
+   "interview": 66,
+   "role_family": "SOLUTIONS",
+   "work_arrangement": null,
+   "licence": {
+    "status": "LICENSED",
+    "register": "UK Home Office",
+    "entry": "Fabrikam Payments Ltd (Skilled Worker, A rating)",
+    "source_url": "https://example.com/sponsor-register.csv"
+   },
+   "sponsorship": {
+    "status": "CONFIRMED",
+    "quote": "Visa sponsorship is available for candidates who need it."
+   }
+  }
+ ],
+ "profile": {
+  "header": {
+   "full_name": "Jane Example",
+   "headline": "Platform and applied AI engineer",
+   "email": "jane@example.com",
+   "phone": null,
+   "location": "Example City",
+   "links": [
+    "https://example.com/jane"
+   ]
+  },
+  "roles": [
+   {
+    "id": 1,
+    "employer": "Example Cloud Co",
+    "title": "Principal Engineer",
+    "start": "2021",
+    "end": null,
+    "location": "Remote"
+   },
+   {
+    "id": 2,
+    "employer": "Sample Retail Group",
+    "title": "Senior Software Engineer",
+    "start": "2016",
+    "end": "2021",
+    "location": "Example City"
+   }
+  ],
+  "facts": [
+   {
+    "id": 101,
+    "role_id": 1,
+    "category": "ACHIEVEMENT",
+    "text": "Designed an event-driven order pipeline on AWS handling 2 million events per day",
+    "skills": [
+     "AWS",
+     "Event-driven architecture"
+    ],
+    "skill_level": null
+   },
+   {
+    "id": 102,
+    "role_id": 1,
+    "category": "ACHIEVEMENT",
+    "text": "Led a cloud cost review that cut monthly AWS spend by 30%",
+    "skills": [
+     "AWS",
+     "FinOps"
+    ],
+    "skill_level": null
+   },
+   {
+    "id": 103,
+    "role_id": 1,
+    "category": "PROJECT",
+    "text": "Shipped an LLM-backed document summarisation feature to production using Python and FastAPI",
+    "skills": [
+     "Python",
+     "FastAPI",
+     "LLM"
+    ],
+    "skill_level": null
+   },
+   {
+    "id": 104,
+    "role_id": 2,
+    "category": "RESPONSIBILITY",
+    "text": "Owned integrations between the e-commerce platform and 12 supplier systems",
+    "skills": [
+     "REST APIs",
+     "Integration"
+    ],
+    "skill_level": null
+   },
+   {
+    "id": 105,
+    "role_id": 2,
+    "category": "ACHIEVEMENT",
+    "text": "Migrated the checkout service from a monolith to containerised services on Kubernetes",
+    "skills": [
+     "Kubernetes",
+     "Docker"
+    ],
+    "skill_level": null
+   },
+   {
+    "id": 106,
+    "role_id": null,
+    "category": "SKILL",
+    "text": "Python",
+    "skills": [
+     "Python"
+    ],
+    "skill_level": "STRONG"
+   },
+   {
+    "id": 107,
+    "role_id": null,
+    "category": "SKILL",
+    "text": "TypeScript and React",
+    "skills": [
+     "TypeScript",
+     "React"
+    ],
+    "skill_level": "WORKING"
+   },
+   {
+    "id": 108,
+    "role_id": null,
+    "category": "EDUCATION",
+    "text": "BSc Computer Science, Example University",
+    "skills": [],
+    "skill_level": null
+   },
+   {
+    "id": 109,
+    "role_id": null,
+    "category": "LANGUAGE",
+    "text": "English (fluent)",
+    "skills": [],
+    "skill_level": null
+   }
+  ]
+ }
+}

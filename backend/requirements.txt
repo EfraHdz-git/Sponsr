@@ -1,0 +1,15 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+sqlalchemy==2.0.36
+pydantic-settings==2.6.1
+anthropic[bedrock]>=0.75
+bcrypt==4.2.1
+pyjwt==2.10.1
+reportlab==4.2.5
+pypdf==5.1.0
+pytest==8.3.4
+httpx==0.28.1
+pillow==13.0.0
+mcp==1.30.0
+starlette>=0.40.0,<0.42.0  # fastapi 0.115.6 needs <0.42; mcp would pull 1.x
+sse-starlette==3.0.3  # last release that works with starlette <0.42

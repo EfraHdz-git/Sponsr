@@ -1,0 +1,34 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Data (personal profiles, bundles, databases, photos); only the synthetic sample is tracked
+data/*
+!data/sample-bundle.json
+backend/data/*
+!backend/data/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated employer logos (tools/fetch_logos.py)
+frontend/public/logos/
+
+# Logs and editor files
+*.log
+.DS_Store
+.vscode/
+.idea/
