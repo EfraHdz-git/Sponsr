@@ -4,6 +4,7 @@ import { Card, countryName } from "../api";
 import { IconAlert, IconCheck, IconExternal, IconShield, IconX } from "../icons";
 import { CompanyLogo, registerName, Ring } from "./bits";
 import { Dir } from "./JobCard";
+import ReachOut from "./ReachOut";
 
 /** Full job details: slides up over the deck (contained inside the phone frame, a centred sheet on desktop). */
 export default function JobDetails({ card, onClose, onSwipe }: { card: Card; onClose: () => void; onSwipe: (d: Dir) => void }) {
@@ -37,6 +38,7 @@ export default function JobDetails({ card, onClose, onSwipe }: { card: Card; onC
             <ul className="jd-list ok">{card.strengths.map((s) => <li key={s}><IconCheck className="icon" />{s}</li>)}</ul></section>}
           {card.gaps.length > 0 && <section><h3>Worth preparing for</h3>
             <ul className="jd-list warn">{card.gaps.map((s) => <li key={s}><IconAlert className="icon" />{s}</li>)}</ul></section>}
+          <ReachOut jobId={card.id} />
           <section><h3>The posting</h3>
             <div className={`jd-posting ${more ? "open" : ""}`}>{card.description}</div>
             <button className="link" onClick={() => setMore(!more)}>{more ? "Show less" : "Read the full posting"}</button></section>

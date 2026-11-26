@@ -173,3 +173,22 @@ kbd { display: inline-block; min-width: 26px; text-align: center; padding: 2px 6
   .jc-hero { height: 150px; } .jc-company { font-size: 18px; left: 112px; } .jc-title { font-size: 21px; }
   .jc-body { padding: 44px 18px 46px; gap: 10px; } .jc-why li:nth-child(2) { display: none; }
 }
+
+/* Who to contact (ReachOut) */
+.reach-person { display: grid; gap: 2px; margin-bottom: 10px; font-size: 14px; }
+.reach-person a { color: var(--brand); word-break: break-all; }
+.reach-person small { color: var(--muted); font-size: 12px; }
+.reach-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.reach-links .btn { font-size: 13px; padding: 8px 12px; }
+.reach-note { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin: 10px 0 0; }
+.reach-form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.reach-form select, .reach-form input { flex: 1 1 140px; min-width: 0; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 12px; font: inherit; font-size: 14px; background: var(--panel); color: var(--ink); }
+.reach-form .btn { flex: 1 1 100%; justify-content: center; }
+.reach-drafts { margin-top: 14px; display: grid; gap: 10px; }
+.reach-draft { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--panel); }
+.reach-draft-head { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.reach-draft-head b { flex: 1; min-width: 0; }
+.reach-draft-head span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.reach-draft-head .btn { padding: 6px 10px; font-size: 12.5px; }
+.reach-draft p { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: var(--ink-2); white-space: pre-wrap; }

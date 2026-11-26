@@ -215,3 +215,35 @@ def my_profile() -> dict:
                            "facts": per_role.get(r["id"], 0)} for r in u.roles or []],
                 "top_skills": [k for k, _ in sorted(skills.items(), key=lambda kv: -kv[1])[:15]],
                 "sample_achievements": [f["text"] for f in facts if f.get("category") == "ACHIEVEMENT"][:5]}
+
+
+@mcp.tool(annotations=READ)
+def find_recruiters(job_id: int) -> dict:
+    """Use when the user asks who to contact, who the recruiter is, or wants to reach out about a job. Returns any
+    contact the posting itself names, plus LinkedIn searches for the company's recruiters, engineering managers and
+    staff. Show each LinkedIn search as a clickable Markdown link (as buttons), and tell the user they open in
+    their own browser, so they must be signed in to LinkedIn; Sponsr never logs in to LinkedIn or reads it."""
+    from app.outreach_api import contacts_for
+    with SessionLocal() as s:
+        j = s.get(Job, job_id)
+        if j is None:
+            raise ValueError("no such job")
+        return contacts_for(j) | {"role": j.title, "next_step": "Pick a person from the results, then use "
+                                  "draft_outreach with their name for a message to paste into LinkedIn."}
+
+
+@mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))
+async def draft_outreach(job_id: int, recipient: Literal["RECRUITER", "ENGINEERING_LEADER"] = "RECRUITER",
+                         name: str | None = None) -> dict:
+    """Use when the user wants a message for a recruiter or engineering leader about a job (an InMail and a
+    connection note), written only from the candidate's verified facts and fact-checked (about 10 seconds, a few
+    cents). Nothing is sent: show both texts in full so the user can copy them into LinkedIn."""
+    from app.cv.outreach import draft_outreach as write
+    from app.outreach_api import profile_of
+    with SessionLocal() as s:
+        user, j = _user(s), s.get(Job, job_id)
+        if j is None:
+            raise ValueError("no such job")
+        profile = profile_of(user)
+    return await asyncio.to_thread(write, j, profile, recipient, (name or "").strip() or None)
+

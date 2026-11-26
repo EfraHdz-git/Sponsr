@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from app.api import router
 from app.mcp_app import mcp
 from app.oauth import router as oauth_router
+from app.outreach_api import router as outreach_router
 from app.db import init_db
 
 
@@ -20,6 +21,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(title="Sponsr", lifespan=lifespan, docs_url=None, redoc_url=None)
 app.include_router(router)
 app.include_router(oauth_router)
+app.include_router(outreach_router)
 
 
 @app.get("/api/health")

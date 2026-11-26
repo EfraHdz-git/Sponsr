@@ -44,6 +44,18 @@ export const api = {
   profile: () => call<Profile>("/profile"),
   reset: () => call<{ swipes: number; applications: number }>("/reset", { method: "POST" }),
   uploadPhoto: (data_url: string) => call<{ photo: string }>("/profile/photo", { method: "POST", body: JSON.stringify({ data_url }) }),
+  contacts: (jobId: number) => call<Contacts>(`/jobs/${jobId}/contacts`),
+  outreach: (jobId: number, recipient: "RECRUITER" | "ENGINEERING_LEADER", name: string | null) =>
+    call<Outreach>(`/jobs/${jobId}/outreach`, { method: "POST", body: JSON.stringify({ recipient, name }) }),
+};
+
+export type Contacts = {
+  company: string; how_it_works: string; linkedin_searches: { label: string; url: string }[];
+  contacts: { email: string; name: string | null; kind: "PERSON" | "RECRUITING_TEAM"; context: string }[];
+};
+export type Outreach = {
+  subject: string; inmail: string; inmail_chars: number; connection_note: string; connection_note_chars: number;
+  notes: string[]; usage: { cost_usd: number; cached_pct: number };
 };
 
 export const countryName = (c: string | null) => ({ GB: "United Kingdom", NL: "Netherlands" } as Record<string, string>)[c || ""] || c || "";
